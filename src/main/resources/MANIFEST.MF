@@ -1,0 +1,29 @@
+Bundle-Name: Ha-VIS Middleware SQL Subscriber Connector
+Bundle-SymbolicName: havis.middleware.subscriber.sql-subscriberconnector
+Bundle-Version: 2.6.3
+Implementation-Version: 2.6
+Bundle-ManifestVersion: 2
+Bundle-Vendor: HARTING IT_SD
+Bundle-Activator: havis.middleware.subscriber.sql.osgi.Activator
+Import-Package: 
+ com.microsoft.sqlserver.jdbc;resolution:=optional,
+ com.mysql.jdbc;resolution:=optional,
+ havis.middleware.ale.base,
+ havis.middleware.ale.base.exception,
+ havis.middleware.ale.service,
+ havis.middleware.ale.service.cc,
+ havis.middleware.ale.service.ec,
+ havis.middleware.ale.service.pc,
+ havis.middleware.ale.subscriber,
+ javax.net.ssl,
+ javax.ws.rs,
+ javax.ws.rs.core,
+ javax.xml.bind,
+ org.h2;resolution:=optional,
+ org.osgi.framework;resolution:=optional,
+ org.postgresql;resolution:=optional,
+ org.supercsv.cellprocessor.ift,
+ org.supercsv.io,
+ org.supercsv.prefs,
+ org.supercsv.util
+

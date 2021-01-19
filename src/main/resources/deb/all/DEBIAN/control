@@ -1,0 +1,5 @@
+Package: @NAME@
+Version: ${Bundle-Version}
+Architecture: all
+Maintainer: ${Bundle-Vendor}
+Description: ${Bundle-Name}

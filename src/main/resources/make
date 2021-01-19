@@ -1,0 +1,69 @@
+#!/bin/sh
+
+. /etc/profile
+
+APP=$(realpath $0)
+
+NAME=@NAME@
+INFO=/opt/havis-apps/info
+EXIT=0
+
+do_install()
+{
+  TMP=$(mktemp -d)
+  cd $TMP
+  sed '1,/^#EOF#$/d' "$APP" | tar x
+  if dpkg -i $NAME\.deb; then
+    sed '/^#EOF#$/,$d' "$APP" > $INFO/$NAME.app
+  else
+    EXIT=$?
+    dpkg -r $NAME
+  fi
+  cd -
+  rm -r $TMP
+}
+
+do_extract()
+{
+  TMP=$(mktemp -d)
+  cd $TMP
+  sed '1,/^#EOF#$/d' "$APP" | tar x
+  dpkg -x $NAME\.deb $TARGET
+  cd -
+  rm -r $TMP
+}
+
+do_remove()
+{
+  if dpkg -r $NAME; then
+    rm $INFO/$NAME.app
+  else
+    EXIT=$?
+  fi
+}
+
+case "$1" in
+  name)
+    echo $NAME.app
+    ;;
+  install)
+    echo "Installing $NAME"
+    do_install
+    ;;
+  remove)
+    echo "Removing $NAME"
+    do_remove
+    ;;
+  extract)
+    echo "Extracting $NAME"
+    do_extract
+    ;;
+  *)
+    echo "Usage: $NAME {install|remove}"
+    exit 1
+    ;;
+esac
+
+exit $EXIT
+
+#EOF#

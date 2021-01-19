@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+	<info organisation="havis.middleware.subscriber" module="http" default="true" />
+
+	<configurations>
+		<conf name="default" />
+	</configurations>
+
+	<dependencies>
+		<dependency org="havis/middleware" name="ale-api" rev="${havis.version}" conf="default" />
+		<dependency org="net/sf/supercsv" name="super-csv" rev="${supercsv.version}" conf="default" />
+		<dependency org="havis/net/server" name="http" rev="${havis.version}" conf="default" />
+		<dependency org="javax/ws/rs" name="javax.ws.rs-api" rev="latest.integration" conf="default" />
+		<dependency org="com/h2database" name="h2" rev="${h2.version}" conf="default" />
+		<dependency org="mysql" name="mysql-connector-java" rev="${mysql.version}" conf="default" />
+		<dependency org="org/postgresql" name="postgresql" rev="${postgresql.version}" conf="default" />
+		<dependency org="com/microsoft/sqlserver/jdbc" name="sqljdbc" rev="${mssql.version}" conf="default" />
+		<dependency org="org/jmockit" name="jmockit" rev="${jmockit.version}" conf="default" />
+		<dependency org="org/jmockit" name="jmockit-coverage" rev="${jmockit.version}" conf="default" />
+		<dependency org="junit" name="junit" rev="${junit.version}" conf="default" />
+		<dependency org="org/osgi" name="org.osgi.core" rev="${osgi.version}" conf="default" />
+	</dependencies>
+
+</ivy-module>

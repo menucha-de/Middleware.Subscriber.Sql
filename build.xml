@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<project name="havis.middleware.subscriber.sql-subscriberconnector" default="publish" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property file="${basedir}/build.properties" />
+	<property name="basename" value="${ant.project.name}" />
+	<property name="build.dir" location="${basedir}/target" />
+	<property name="build.dir.classes" location="${build.dir}/classes" />
+	<property name="build.dir.test" location="${build.dir}/test" />
+	<property name="build.dir.test.classes" location="${build.dir.test}/classes" />
+	<property name="doc.dir" location="${build.dir}/doc" />
+	<property name="lib.dir" location="${basedir}/lib" />
+	<property name="resources.dir" location="${basedir}/src/main/resources" />
+	<property name="src.main.dir" location="${basedir}/src/main/java" />
+	<property name="src.test.dir" location="${basedir}/src/test/java" />
+
+	<property file="${resources.dir}/build.properties" />
+	<property file="${resources.dir}/MANIFEST.MF" prefix="manifest" />
+	<property file="${resources.dir}/version.properties" />
+
+	<property name="javac.version" value="8" />
+
+	<path id="build.classpath">
+		<fileset dir="${lib.dir}" />
+	</path>
+
+	<!-- Checks if the build properties are set prints an error message otherwise -->
+	<target name="check.build.properties">
+		<condition property="ivy.resolver" else="local">
+			<isset property="ivy.resolver" />
+		</condition>
+		<fail message="Missing property 'api.url'. Does 'build.properties' file exists?" unless="api.url" />
+		<fail message="Missing property 'ivy.url'. Does 'build.properties' file exists?" unless="ivy.url" />
+	</target>
+
+	<target name="clean-cache" description="Cleans ivy cache">
+		<ivy:cleancache />
+	</target>
+
+	<target name="clean" description="Cleans the project">
+		<delete dir="${build.dir}" />
+		<delete dir="${lib.dir}" />
+	</target>
+
+	<target name="clean-all" depends="clean, clean-cache" description="Cleans the project and ivy cache" />
+
+	<target name="retrieve" depends="check.build.properties">
+		<ivy:retrieve log="quiet" />
+	</target>
+
+	<!-- Compiles the java source code using javac -->
+	<target name="compile" depends="retrieve">
+		<mkdir dir="${build.dir.classes}" />
+		<javac srcdir="${src.main.dir}" destdir="${build.dir.classes}" release="${javac.version}" debug="${javac.debug}" includeantruntime="false">
+			<classpath>
+				<!-- build libraries -->
+				<path refid="build.classpath" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="prepare" depends="compile" unless="${skip.test}">
+		<mkdir dir="${build.dir.test.classes}" />
+
+		<javac srcdir="${src.test.dir}" destdir="${build.dir.test.classes}" release="${javac.version}" debug="${javac.debug}" includeantruntime="false">
+			<classpath>
+				<path refid="build.classpath" />
+				<pathelement location="${build.dir.classes}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="test" depends="prepare" unless="${skip.test}">
+		<junit printsummary="true" fork="yes" dir="${build.dir.test}" haltonerror="yes" haltonfailure="yes" showoutput="true">
+			<jvmarg value="-Djmockit-coverage-output=html" />
+			<jvmarg value="-Djmockit-coverage-outputDir=${build.dir.test}/coverage-report" />
+			<jvmarg value="-Djmockit-coverage-srcDirs=${src.main.dir}" />
+			<classpath>
+				<path refid="build.classpath" />
+				<pathelement location="${build.dir.classes}" />
+				<pathelement location="${build.dir.test.classes}" />
+			</classpath>
+			<formatter type="plain" />
+			<test name="havis.middleware.subscriber.sql.TestSuite" todir="${build.dir.test}" />
+		</junit>
+	</target>
+
+	<target name="jar" depends="compile" description="Creates the binary JAR">
+		<!-- create binary JAR -->
+		<jar jarfile="${build.dir}/${basename}.jar" basedir="${build.dir.classes}" manifest="${resources.dir}/MANIFEST.MF" />
+	</target>
+
+	<target name="jar-src" description="Creates the source JAR">
+		<!-- create source JAR -->
+		<jar jarfile="${build.dir}/${basename}-sources.jar" basedir="${src.main.dir}" />
+	</target>
+
+	<target name="jar-doc">
+		<!-- create javadoc JAR -->
+		<javadoc destdir="${doc.dir}" author="true" version="true" use="true" windowtitle="${javadoc.windowtitle}" doctitle="${javadoc.doctitle}" bottom="${javadoc.buttom}">
+			<packageset dir="${src.main.dir}" defaultexcludes="yes" />
+			<classpath refid="build.classpath" />
+			<group title="Packages" packages="havis.middleware.subscriber.sql.*" />
+			<link offline="true" href="http://docs.oracle.com/javase/7/docs/api/" packagelistURL="${api.url}/javase/7/" />
+		</javadoc>
+		<jar jarfile="${build.dir}/${basename}-javadoc.jar" basedir="${doc.dir}" />
+	</target>
+
+	<target name="deb" depends="retrieve">
+		<copy file="${lib.dir}/${driver}-${version}.jar" tofile="${build.dir}/${name}/deb/opt/havis-apps/bundle/40_${driver}.jar" />
+
+		<unjar src="${lib.dir}/${driver}-${version}.jar" dest="${build.dir}/${name}">
+			<patternset includes="META-INF/MANIFEST.MF" />
+		</unjar>
+
+		<copy file="${resources.dir}/jar/app.properties" tofile="${build.dir}/${name}/jar/OSGI-INF/${name}.properties">
+			<filterset begintoken="${" endtoken="}" filtersfile="${build.dir}/${name}/META-INF/MANIFEST.MF" />
+			<filterset>
+				<filter token="NAME" value="${name}" />
+				<filter token="LABEL" value="${label}" />
+				<filter token="VERSION" value="${version}" />
+			</filterset>
+		</copy>
+
+		<jar file="${build.dir}/${name}/deb/opt/havis-apps/bundle/40_${driver}.jar" update="true">
+			<fileset dir="${build.dir}/${name}/jar" />
+			<manifest>
+				<attribute name="Havis-Bundle" value="OSGI-INF/${name}.properties" />
+			</manifest>
+		</jar>
+
+		<copy todir="${build.dir}/${name}/deb">
+			<fileset dir="${resources.dir}/deb/${name}" />
+		</copy>
+
+		<copy file="${resources.dir}/deb/all/DEBIAN/control" todir="${build.dir}/${name}/deb/DEBIAN">
+			<filterset begintoken="${" endtoken="}" filtersfile="${build.dir}/${name}/META-INF/MANIFEST.MF" />
+			<filterset>
+				<filter token="NAME" value="${name}" />
+			</filterset>
+		</copy>
+
+		<copy todir="${build.dir}/${name}/deb/DEBIAN">
+			<fileset dir="${resources.dir}/deb/all/DEBIAN">
+				<include name="preinst" />
+				<include name="postinst" />
+				<include name="prerm" />
+				<include name="postrm" />
+			</fileset>
+			<filterset>
+				<filter token="PKG" value="40_${driver}.jar" />
+			</filterset>
+		</copy>
+
+		<chmod perm="755" type="file">
+			<fileset dir="${build.dir}/${name}/deb/DEBIAN">
+				<include name="preinst" />
+				<include name="postinst" />
+				<include name="prerm" />
+				<include name="postrm" />
+			</fileset>
+		</chmod>
+
+		<mkdir dir="${build.dir}/${name}/tar" />
+		<exec executable="fakeroot">
+			<arg value="dpkg" />
+			<arg value="-b" />
+			<arg value="${build.dir}/${name}/deb" />
+			<arg value="${build.dir}/${name}/tar/${name}.deb" />
+		</exec>
+	</target>
+
+	<target name="app" depends="deb">
+		<exec executable="fakeroot">
+			<arg value="tar" />
+			<arg value="cfC" />
+			<arg value="${build.dir}/${name}/${name}.tar" />
+			<arg value="${build.dir}/${name}/tar" />
+			<arg value="." />
+		</exec>
+		<copy file="${resources.dir}/make" tofile="${build.dir}/${name}/make">
+			<filterset>
+				<filter token="NAME" value="${name}" />
+			</filterset>
+		</copy>
+		<concat destfile="${build.dir}/${name}.app" binary="yes">
+			<fileset file="${build.dir}/${name}/make" />
+			<fileset file="${build.dir}/${name}/${name}.tar" />
+		</concat>
+	</target>
+
+	<target name="apps" depends="check.build.properties">
+		<antcall target="app">
+			<param name="name" value="mysql" />
+			<param name="label" value="MySQL Driver" />
+			<param name="driver" value="mysql-connector-java" />
+			<param name="version" value="${mysql.version}" />
+		</antcall>
+		<antcall target="app">
+			<param name="name" value="postgresql" />
+			<param name="label" value="PostgreSQL Driver" />
+			<param name="driver" value="postgresql" />
+			<param name="version" value="${postgresql.version}" />
+		</antcall>
+		<antcall target="app">
+			<param name="name" value="mssql" />
+			<param name="label" value="Microsoft SQL Driver" />
+			<param name="driver" value="sqljdbc" />
+			<param name="version" value="${mssql.version}" />
+		</antcall>
+	</target>
+
+	<target name="publish" depends="apps, jar, jar-src, jar-doc" description="Publishes the JAR to the repository">
+		<ivy:resolve file="${resources.dir}/ivy.xml" />
+
+		<ivy:publish resolver="${ivy.resolver}" pubrevision="${manifest.Bundle-Version}" status="integration" overwrite="true">
+			<artifacts pattern="${build.dir}/[artifact].[ext]" />
+		</ivy:publish>
+	</target>
+
+</project>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+	<info organisation="havis/middleware/subscriber" module="sql-subscriberconnector" default="true" />
+
+	<configurations>
+		<conf name="default" />
+		<conf name="doc" />
+		<conf name="src" />
+		<conf name="app" />
+	</configurations>
+
+	<publications>
+		<artifact name="havis.middleware.subscriber.sql-subscriberconnector" conf="default" />
+		<artifact name="havis.middleware.subscriber.sql-subscriberconnector-javadoc" conf="doc" />
+		<artifact name="havis.middleware.subscriber.sql-subscriberconnector-sources" conf="src" />
+		<artifact name="mysql" type="app" conf="app" />
+		<artifact name="postgresql" type="app" conf="app" />
+		<artifact name="mssql" type="app" conf="app" />
+	</publications>
+
+	<dependencies>
+		<dependency org="havis/middleware" name="ale-api" rev="${havis.version}" conf="default" />
+		<dependency org="net/sf/supercsv" name="super-csv" rev="${supercsv.version}" conf="default" />
+	</dependencies>
+
+</ivy-module>

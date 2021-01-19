@@ -1,0 +1,10 @@
+#!/bin/sh
+
+URL="http://admin@localhost/rest/apps"
+PKG="@PKG@"
+
+for pkg in $PKG; do
+  busybox wget $URL/$pkg/plug -q --spider
+done
+
+exit 0
