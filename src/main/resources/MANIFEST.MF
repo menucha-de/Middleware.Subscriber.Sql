@@ -1,7 +1,7 @@
 Bundle-Name: Ha-VIS Middleware SQL Subscriber Connector
 Bundle-SymbolicName: havis.middleware.subscriber.sql-subscriberconnector
-Bundle-Version: 2.6.3
-Implementation-Version: 2.6
+Bundle-Version: 2.7.0
+Implementation-Version: 2.7
 Bundle-ManifestVersion: 2
 Bundle-Vendor: HARTING IT_SD
 Bundle-Activator: havis.middleware.subscriber.sql.osgi.Activator
