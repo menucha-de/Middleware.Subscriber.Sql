@@ -3,7 +3,7 @@ Bundle-SymbolicName: havis.middleware.subscriber.sql-subscriberconnector
 Bundle-Version: 2.7.0
 Implementation-Version: 2.7
 Bundle-ManifestVersion: 2
-Bundle-Vendor: HARTING IT_SD
+Bundle-Vendor: Menucha Team <info@menucha.de>
 Bundle-Activator: havis.middleware.subscriber.sql.osgi.Activator
 Import-Package: 
  com.microsoft.sqlserver.jdbc;resolution:=optional,
